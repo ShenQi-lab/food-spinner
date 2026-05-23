@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>今天吃什么呀？</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-start: #fff5f7;
+      --bg-end: #ffe8f0;
+      --primary: #ff6b8a;
+      --primary-dark: #e85d75;
+      --primary-light: #ffb3c1;
+      --accent: #ffd93d;
+      --accent-light: #fff3b0;
+      --text: #5a3d44;
+      --text-light: #8b6b73;
+      --card-bg: rgba(255, 255, 255, 0.88);
+      --shadow: rgba(255, 107, 138, 0.18);
+      --shadow-strong: rgba(255, 107, 138, 0.3);
+      --glass: rgba(255, 255, 255, 0.75);
+      --success: #7dd3a8;
+      --warning: #ffc078;
+      --danger: #ff8fa3;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      height: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: 'Noto Sans SC', sans-serif;
+      background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%);
+      color: var(--text);
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* Floating Background Hearts */
+    .bg-hearts {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .bg-heart {
+      position: absolute;
+      font-size: 20px;
+      opacity: 0;
+      animation: floatHeart 12s infinite ease-in-out;
+    }
+
+    @keyframes floatHeart {
+      0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+      10% { opacity: 0.6; }
+      90% { opacity: 0.4; }
+      100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+    }
+
+    .bg-blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.35;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .blob-1 {
+      width: 300px;
+      height: 300px;
+      background: var(--primary-light);
+      top: -100px;
+      right: -100px;
+      animation: blobMove 20s infinite alternate ease-in-out;
+    }
+
+    .blob-2 {
+      width: 250px;
+      height: 250px;
+      background: #ffd6e0;
+      bottom: -80px;
+      left: -80px;
+      animation: blobMove 15s infinite alternate-reverse ease-in-out;
+    }
+
+    .blob-3 {
+      width: 200px;
+      height: 200px;
+      background: #e2f0cb;
+      top: 40%;
+      left: 50%;
+      animation: blobMove 18s infinite alternate ease-in-out;
+    }
+
+    @keyframes blobMove {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(30px, -30px) scale(1.1); }
+    }
+
+    /* App Layout */
+    .app {
+      position: relative;
+      z-index: 1;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 24px 20px 80px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app-header {
+      text-align: center;
+      margin-bottom: 20px;
+      animation: fadeInDown 0.8s ease-out;
+    }
+
+    .app-header h1 {
+      font-family: 'ZCOOL KuaiLe', cursive;
+      font-size: 2.4rem;
+      color: var(--primary);
+      text-shadow: 2px 2px 0px var(--primary-light);
+      letter-spacing: 2px;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      color: var(--text-light);
+      font-weight: 400;
+    }
+
+    /* Wheel */
+    .wheel-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 20px;
+      animation: fadeInUp 0.8s 0.2s both ease-out;
+    }
+
+    .wheel-wrapper {
+      position: relative;
+      width: min(85vw, 380px);
+      height: min(85vw, 380px);
+      margin: 0 auto 20px;
+    }
+
+    #wheelCanvas {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      box-shadow:
+        0 8px 32px var(--shadow),
+        0 2px 8px var(--shadow-strong),
+        inset 0 2px 4px rgba(255,255,255,0.5);
+    }
+
+    .wheel-pointer {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      filter: drop-shadow(0 3px 6px rgba(255, 107, 138, 0.4));
+      animation: pointerBounce 2s infinite ease-in-out;
+    }
+
+    @keyframes pointerBounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-4px); }
+    }
+
+    .wheel-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px var(--shadow-strong);
+      z-index: 5;
+      border: 3px solid #fff;
+    }
+
+    .wheel-center span {
+      font-size: 24px;
+    }
+
+    /* Result Card */
+    .result-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border-radius: 24px;
+      padding: 24px 28px;
+      text-align: center;
+      box-shadow: 0 8px 32px var(--shadow);
+      border: 1px solid rgba(255,255,255,0.6);
+      margin-bottom: 20px;
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+      transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .result-card.show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .result-label {
+      font-size: 0.9rem;
+      color: var(--text-light);
+      margin-bottom: 8px;
+    }
+
+    .result-food {
+      font-family: 'ZCOOL KuaiLe', cursive;
+      font-size: 2.2rem;
+      color: var(--primary);
+      margin-bottom: 10px;
+      animation: bounceIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .result-message {
+      font-size: 0.95rem;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* Buttons */
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 16px;
+      animation: fadeInUp 0.8s 0.4s both ease-out;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 50px;
+      padding: 16px 28px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      font-family: 'Noto Sans SC', sans-serif;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn:active {
+      transform: scale(0.96);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: #fff;
+      box-shadow: 0 6px 20px var(--shadow-strong);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px var(--shadow-strong);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, #fff 0%, #fff8fa 100%);
+      color: var(--primary);
+      border: 2px solid var(--primary-light);
+      box-shadow: 0 4px 16px var(--shadow);
+    }
+
+    .btn-secondary:hover {
+      background: linear-gradient(135deg, #fff8fa 0%, #ffe8f0 100%);
+      transform: translateY(-2px);
+    }
+
+    .btn-manage {
+      background: transparent;
+      color: var(--text-light);
+      font-size: 0.95rem;
+      padding: 12px 20px;
+      margin-top: auto;
+    }
+
+    .btn-manage:hover {
+      color: var(--primary);
+    }
+
+    .btn-icon {
+      font-size: 1.2rem;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(90, 61, 68, 0.35);
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-content {
+      position: relative;
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      border-radius: 28px 28px 0 0;
+      width: 100%;
+      max-width: 480px;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 24px 20px 32px;
+      transform: translateY(100%);
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 -8px 32px rgba(0,0,0,0.1);
+      border-top: 1px solid rgba(255,255,255,0.6);
+    }
+
+    .modal.open .modal-content {
+      transform: translateY(0);
+    }
+
+    @media (min-width: 640px) {
+      .modal {
+        align-items: center;
+      }
+      .modal-content {
+        border-radius: 28px;
+        max-height: 80vh;
+        transform: translateY(30px) scale(0.95);
+      }
+      .modal.open .modal-content {
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .modal-header h2 {
+      font-family: 'ZCOOL KuaiLe', cursive;
+      font-size: 1.5rem;
+      color: var(--primary);
+    }
+
+    .close-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.6);
+      color: var(--text-light);
+      font-size: 1.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .close-btn:hover {
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    /* Add Form */
+    .add-section {
+      margin-bottom: 20px;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .input-group input {
+      flex: 1;
+      padding: 14px 18px;
+      border: 2px solid var(--primary-light);
+      border-radius: 16px;
+      font-size: 1rem;
+      font-family: 'Noto Sans SC', sans-serif;
+      background: rgba(255,255,255,0.8);
+      color: var(--text);
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .input-group input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px var(--shadow);
+    }
+
+    .input-group input::placeholder {
+      color: #c4a8b0;
+    }
+
+    .btn-add {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: #fff;
+      padding: 14px 20px;
+      border-radius: 16px;
+      font-size: 0.95rem;
+      white-space: nowrap;
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    .hint {
+      font-size: 0.85rem;
+      margin-top: 8px;
+      min-height: 20px;
+      transition: all 0.2s;
+    }
+
+    .hint.error {
+      color: var(--danger);
+      animation: shake 0.4s ease-in-out;
+    }
+
+    .hint.success {
+      color: var(--success);
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+
+    /* Food List */
+    .food-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+      max-height: 40vh;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .food-list::-webkit-scrollbar {
+      width: 4px;
+    }
+    .food-list::-webkit-scrollbar-thumb {
+      background: var(--primary-light);
+      border-radius: 4px;
+    }
+
+    .food-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.7);
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.5);
+      transition: all 0.2s;
+    }
+
+    .food-item:hover {
+      background: rgba(255,255,255,0.9);
+      transform: translateX(4px);
+    }
+
+    .food-item .food-name {
+      flex: 1;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text);
+      background: transparent;
+      border: none;
+      outline: none;
+      font-family: 'Noto Sans SC', sans-serif;
+      padding: 4px 8px;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+
+    .food-item .food-name:focus {
+      background: rgba(255,255,255,0.9);
+      box-shadow: 0 0 0 2px var(--primary-light);
+    }
+
+    .food-item .food-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .food-item .food-actions button {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+
+    .btn-edit {
+      background: var(--accent-light);
+      color: #c99000;
+    }
+    .btn-edit:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-delete {
+      background: #ffe8ec;
+      color: var(--danger);
+    }
+    .btn-delete:hover {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .btn-delete:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-restore {
+      width: 100%;
+      background: rgba(255,255,255,0.6);
+      color: var(--text-light);
+      padding: 14px;
+      border-radius: 16px;
+      border: 2px dashed var(--primary-light);
+      font-size: 0.95rem;
+    }
+
+    .btn-restore:hover {
+      background: rgba(255,255,255,0.9);
+      color: var(--primary);
+      border-style: solid;
+    }
+
+    /* Confetti */
+    .confetti-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    /* Animations */
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes bounceIn {
+      0% { opacity: 0; transform: scale(0.3); }
+      50% { transform: scale(1.05); }
+      70% { transform: scale(0.95); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* Spinning state */
+    .spinning .wheel-wrapper {
+      animation: wheelPulse 0.5s infinite alternate;
+    }
+
+    @keyframes wheelPulse {
+      from { transform: scale(1); }
+      to { transform: scale(1.01); }
+    }
+
+    /* Respin limit message */
+    .limit-message {
+      font-size: 0.9rem;
+      color: var(--primary);
+      font-style: italic;
+      padding: 10px;
+      background: var(--accent-light);
+      border-radius: 12px;
+      margin-top: 10px;
+      animation: fadeInUp 0.4s ease-out;
+    }
+  </style>
+</head>
+<body>
+  <!-- Background Effects -->
+  <div class="bg-hearts" id="bgHearts"></div>
+  <div class="bg-blob blob-1"></div>
+  <div class="bg-blob blob-2"></div>
+  <div class="bg-blob blob-3"></div>
+
+  <div class="app">
+    <header class="app-header">
+      <h1>今天吃什么呀？</h1>
+      <p class="subtitle">让转盘替公主殿下决定今天吃什么 ~</p>
+    </header>
+
+    <main>
+      <div class="wheel-section">
+        <div class="wheel-wrapper" id="wheelWrapper">
+          <canvas id="wheelCanvas"></canvas>
+          <div class="wheel-pointer">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="#ff6b8a">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+          </div>
+          <div class="wheel-center">
+            <span>✨</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-card" id="resultCard">
+        <div class="result-label">今天吃：</div>
+        <div class="result-food" id="resultFood"></div>
+        <div class="result-message" id="resultMessage"></div>
+        <div id="limitMessage"></div>
+      </div>
+
+      <div class="action-buttons">
+        <button id="spinBtn" class="btn btn-primary">
+          <span class="btn-icon">🎀</span>
+          开始转盘
+        </button>
+        <button id="respinBtn" class="btn btn-secondary hidden">
+          不想吃，重抽一次
+        </button>
+      </div>
+    </main>
+
+    <button id="manageBtn" class="btn btn-manage">
+      <span>📝</span> 管理菜单
+    </button>
+  </div>
+
+  <!-- Management Modal -->
+  <div class="modal" id="manageModal">
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>管理菜单</h2>
+        <button class="close-btn" id="closeModal">×</button>
+      </div>
+
+      <div class="add-section">
+        <div class="input-group">
+          <input type="text" id="newFoodInput" placeholder="想吃什么？输入食物名称..." maxlength="20">
+          <button id="addFoodBtn" class="btn btn-add">添加</button>
+        </div>
+        <p class="hint" id="addHint"></p>
+      </div>
+
+      <div class="food-list" id="foodList"></div>
+
+      <button id="restoreBtn" class="btn btn-restore">恢复默认菜单</button>
+    </div>
+  </div>
+
+  <!-- Confetti Canvas -->
+  <canvas id="confettiCanvas" class="confetti-canvas"></canvas>
+
+  <script>
+    // ===================== Constants =====================
+    const STORAGE_KEY = 'food_spinner_items';
+    const DEFAULT_FOODS = ['火锅', '烤肉', '麻辣烫', '寿司', '炸鸡', '米线'];
+    const WHEEL_COLORS = [
+      '#FF9AA2', '#FFB7B2', '#FFDAC1', '#E2F0CB',
+      '#B5EAD7', '#C7CEEA', '#F8B195', '#F67280',
+      '#C06C84', '#6C5B7B', '#355C7D', '#A8E6CF'
+    ];
+    const MESSAGES = [
+      '公主殿下今日适合被热乎乎地投喂 ~',
+      '男朋友任务：负责下单，不许问"你确定吗"。',
+      '适合今天可可爱爱、轻轻松松地吃一顿。',
+      '快乐值补充中，今日适合被投喂。',
+      '这个选择是转盘大人深思熟虑后的结果！',
+      '今天的心情和这个食物特别配哦 ~',
+      '别犹豫啦，公主说吃这个就吃这个！',
+      '胃已经准备好迎接这份美味啦。',
+      '这道菜和公主殿下今天的气质很搭呢 ~',
+      '就决定是你了！快去享受美食吧 ~',
+    ];
+    const RESPIN_LIMIT_MESSAGE = '检测到公主殿下并不是不知道吃什么，而是在等男朋友决定。';
+    const MIN_ITEMS = 2;
+    const MAX_RESPINS = 2;
+
+    // ===================== State =====================
+    let items = [];
+    let currentRotation = 0;
+    let isSpinning = false;
+    let respinCount = 0;
+    let lastWinner = null;
+
+    // ===================== DOM Elements =====================
+    const canvas = document.getElementById('wheelCanvas');
+    const ctx = canvas.getContext('2d');
+    const spinBtn = document.getElementById('spinBtn');
+    const respinBtn = document.getElementById('respinBtn');
+    const manageBtn = document.getElementById('manageBtn');
+    const manageModal = document.getElementById('manageModal');
+    const modalOverlay = document.getElementById('modalOverlay');
+    const closeModal = document.getElementById('closeModal');
+    const newFoodInput = document.getElementById('newFoodInput');
+    const addFoodBtn = document.getElementById('addFoodBtn');
+    const addHint = document.getElementById('addHint');
+    const foodList = document.getElementById('foodList');
+    const restoreBtn = document.getElementById('restoreBtn');
+    const resultCard = document.getElementById('resultCard');
+    const resultFood = document.getElementById('resultFood');
+    const resultMessage = document.getElementById('resultMessage');
+    const limitMessage = document.getElementById('limitMessage');
+    const wheelWrapper = document.getElementById('wheelWrapper');
+
+    // ===================== Data Persistence =====================
+    function loadItems() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length >= MIN_ITEMS) {
+            items = parsed;
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn('Failed to load stored items:', e);
+      }
+      items = [...DEFAULT_FOODS];
+      saveItems();
+    }
+
+    function saveItems() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      } catch (e) {
+        console.warn('Failed to save items:', e);
+      }
+    }
+
+    // ===================== Wheel Drawing =====================
+    function setupCanvas() {
+      const size = Math.min(wheelWrapper.clientWidth, 400);
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = size * dpr;
+      canvas.height = size * dpr;
+      canvas.style.width = size + 'px';
+      canvas.style.height = size + 'px';
+      ctx.scale(dpr, dpr);
+      return { size, center: size / 2, radius: size / 2 - 16 };
+    }
+
+    let wheelDims = setupCanvas();
+
+    function getFontSize(count) {
+      if (count <= 4) return 20;
+      if (count <= 6) return 17;
+      if (count <= 8) return 14;
+      return 12;
+    }
+
+    function drawWheel(rotation) {
+      const { center, radius } = wheelDims;
+      const sliceAngle = (2 * Math.PI) / items.length;
+      const offset = 3 * Math.PI / 2 - sliceAngle / 2;
+      const fontSize = getFontSize(items.length);
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw slices
+      items.forEach((item, i) => {
+        const startAngle = rotation + offset + i * sliceAngle;
+        const endAngle = rotation + offset + (i + 1) * sliceAngle;
+
+        ctx.beginPath();
+        ctx.moveTo(center, center);
+        ctx.arc(center, center, radius, startAngle, endAngle);
+        ctx.closePath();
+
+        const color = WHEEL_COLORS[i % WHEEL_COLORS.length];
+        ctx.fillStyle = color;
+        ctx.fill();
+
+        // Slice border
+        ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Draw text
+        const midAngle = startAngle + sliceAngle / 2;
+        const flip = midAngle > Math.PI / 2 && midAngle < 3 * Math.PI / 2;
+
+        ctx.save();
+        ctx.translate(center, center);
+        ctx.rotate(midAngle + (flip ? Math.PI : 0));
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#fff';
+        ctx.font = `bold ${fontSize}px "Noto Sans SC", sans-serif`;
+        ctx.shadowColor = 'rgba(0,0,0,0.15)';
+        ctx.shadowBlur = 2;
+        ctx.fillText(item, flip ? -radius * 0.6 : radius * 0.6, 0);
+        ctx.restore();
+      });
+
+      // Outer ring
+      ctx.beginPath();
+      ctx.arc(center, center, radius, 0, 2 * Math.PI);
+      ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+      ctx.lineWidth = 4;
+      ctx.stroke();
+    }
+
+    // ===================== Spin Logic =====================
+    function spin(isRespin = false) {
+      if (isSpinning) return;
+
+      if (!isRespin) {
+        respinCount = 0;
+        lastWinner = null;
+        hideResult();
+      }
+
+      isSpinning = true;
+      spinBtn.disabled = true;
+      respinBtn.classList.add('hidden');
+      limitMessage.innerHTML = '';
+      wheelWrapper.classList.add('spinning');
+
+      const minSpins = 5;
+      const maxSpins = 8;
+      const spins = minSpins + Math.random() * (maxSpins - minSpins);
+      const targetRotation = currentRotation + spins * 2 * Math.PI;
+      const duration = 3500 + Math.random() * 1000;
+      const startTime = performance.now();
+
+      function animate(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easeOut = 1 - Math.pow(1 - progress, 4);
+
+        currentRotation = currentRotation + (targetRotation - currentRotation) * easeOut;
+        drawWheel(currentRotation);
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          finishSpin();
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    function finishSpin() {
+      isSpinning = false;
+      spinBtn.disabled = false;
+      wheelWrapper.classList.remove('spinning');
+
+      const sliceAngle = (2 * Math.PI) / items.length;
+      const relativeAngle = (sliceAngle / 2 - currentRotation) % (2 * Math.PI);
+      const normalizedAngle = relativeAngle < 0 ? relativeAngle + 2 * Math.PI : relativeAngle;
+      const winningIndex = Math.floor(normalizedAngle / sliceAngle) % items.length;
+      const winner = items[winningIndex];
+
+      lastWinner = winner;
+      showResult(winner);
+
+      if (respinCount < MAX_RESPINS) {
+        respinBtn.classList.remove('hidden');
+      }
+    }
+
+    // ===================== Result Display =====================
+    function showResult(food) {
+      const message = MESSAGES[Math.floor(Math.random() * MESSAGES.length)];
+      resultFood.textContent = food;
+      resultMessage.textContent = message;
+      resultCard.classList.add('show');
+      fireConfetti();
+    }
+
+    function hideResult() {
+      resultCard.classList.remove('show');
+    }
+
+    function handleRespin() {
+      if (respinCount >= MAX_RESPINS) {
+        limitMessage.innerHTML = `<div class="limit-message">${RESPIN_LIMIT_MESSAGE}</div>`;
+        respinBtn.classList.add('hidden');
+        return;
+      }
+      respinCount++;
+      if (respinCount >= MAX_RESPINS) {
+        respinBtn.classList.add('hidden');
+      }
+      spin(true);
+    }
+
+    // ===================== Confetti =====================
+    const confettiCanvas = document.getElementById('confettiCanvas');
+    const confettiCtx = confettiCanvas.getContext('2d');
+    let confettiParticles = [];
+    let confettiAnimating = false;
+
+    function resizeConfetti() {
+      confettiCanvas.width = window.innerWidth;
+      confettiCanvas.height = window.innerHeight;
+    }
+    resizeConfetti();
+    window.addEventListener('resize', () => {
+      resizeConfetti();
+      wheelDims = setupCanvas();
+      drawWheel(currentRotation);
+    });
+
+    function fireConfetti() {
+      const colors = ['#ff9aa2', '#ffb7b2', '#ffdac1', '#e2f0cb', '#b5ead7', '#c7ceea', '#ffd93d', '#ff6b8a'];
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+
+      for (let i = 0; i < 80; i++) {
+        const angle = (Math.PI * 2 * i) / 80 + Math.random() * 0.5;
+        const speed = 4 + Math.random() * 8;
+        confettiParticles.push({
+          x: centerX,
+          y: centerY,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 6,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          size: 4 + Math.random() * 8,
+          rotation: Math.random() * 360,
+          rotationSpeed: (Math.random() - 0.5) * 12,
+          life: 1,
+          decay: 0.008 + Math.random() * 0.012,
+          shape: Math.random() > 0.5 ? 'circle' : 'rect'
+        });
+      }
+
+      if (!confettiAnimating) {
+        confettiAnimating = true;
+        animateConfetti();
+      }
+    }
+
+    function animateConfetti() {
+      if (confettiParticles.length === 0) {
+        confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+        confettiAnimating = false;
+        return;
+      }
+
+      confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+
+      for (let i = confettiParticles.length - 1; i >= 0; i--) {
+        const p = confettiParticles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.25;
+        p.vx *= 0.98;
+        p.rotation += p.rotationSpeed;
+        p.life -= p.decay;
+
+        if (p.life <= 0) {
+          confettiParticles.splice(i, 1);
+          continue;
+        }
+
+        confettiCtx.save();
+        confettiCtx.translate(p.x, p.y);
+        confettiCtx.rotate((p.rotation * Math.PI) / 180);
+        confettiCtx.globalAlpha = p.life;
+        confettiCtx.fillStyle = p.color;
+
+        if (p.shape === 'circle') {
+          confettiCtx.beginPath();
+          confettiCtx.arc(0, 0, p.size, 0, Math.PI * 2);
+          confettiCtx.fill();
+        } else {
+          confettiCtx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+        }
+
+        confettiCtx.restore();
+      }
+
+      requestAnimationFrame(animateConfetti);
+    }
+
+    // ===================== Modal =====================
+    function openModal() {
+      manageModal.classList.add('open');
+      renderFoodList();
+      newFoodInput.value = '';
+      addHint.textContent = '';
+      addHint.className = 'hint';
+    }
+
+    function closeModalFn() {
+      manageModal.classList.remove('open');
+    }
+
+    // ===================== Food CRUD =====================
+    function addFood() {
+      const name = newFoodInput.value.trim();
+      addHint.className = 'hint';
+
+      if (!name) {
+        addHint.textContent = '食物名称不能为空哦 ~';
+        addHint.classList.add('error');
+        return;
+      }
+
+      if (items.some(item => item === name)) {
+        addHint.textContent = '这个已经在转盘里啦 ~';
+        addHint.classList.add('error');
+        return;
+      }
+
+      items.push(name);
+      saveItems();
+      drawWheel(currentRotation);
+      newFoodInput.value = '';
+      addHint.textContent = `✨ ${name} 已添加到转盘！`;
+      addHint.classList.add('success');
+      renderFoodList();
+
+      setTimeout(() => {
+        addHint.textContent = '';
+        addHint.className = 'hint';
+      }, 2000);
+    }
+
+    function updateFood(index, newName) {
+      const trimmed = newName.trim();
+      if (!trimmed) {
+        renderFoodList();
+        return;
+      }
+
+      const existingIndex = items.findIndex((item, i) => i !== index && item === trimmed);
+      if (existingIndex !== -1) {
+        renderFoodList();
+        return;
+      }
+
+      items[index] = trimmed;
+      saveItems();
+      drawWheel(currentRotation);
+    }
+
+    function deleteFood(index) {
+      if (items.length <= MIN_ITEMS) {
+        alert('至少保留两个选项哦，不然转盘转不起来啦。');
+        return;
+      }
+
+      items.splice(index, 1);
+      saveItems();
+      drawWheel(currentRotation);
+      renderFoodList();
+    }
+
+    function restoreDefaults() {
+      if (!confirm('确定要恢复默认菜单吗？当前自定义食物会被清空哦。')) {
+        return;
+      }
+      items = [...DEFAULT_FOODS];
+      saveItems();
+      drawWheel(currentRotation);
+      renderFoodList();
+      addHint.textContent = '已恢复默认菜单 ~';
+      addHint.classList.add('success');
+    }
+
+    function renderFoodList() {
+      foodList.innerHTML = '';
+      items.forEach((item, index) => {
+        const el = document.createElement('div');
+        el.className = 'food-item';
+        el.innerHTML = `
+          <input type="text" class="food-name" value="${item}" data-index="${index}">
+          <div class="food-actions">
+            <button class="btn-edit" data-index="${index}" title="修改">✏️</button>
+            <button class="btn-delete" data-index="${index}" title="删除" ${items.length <= MIN_ITEMS ? 'disabled' : ''}>🗑️</button>
+          </div>
+        `;
+        foodList.appendChild(el);
+      });
+
+      // Bind events
+      foodList.querySelectorAll('.food-name').forEach(input => {
+        input.addEventListener('change', (e) => {
+          const index = parseInt(e.target.dataset.index);
+          updateFood(index, e.target.value);
+        });
+        input.addEventListener('blur', (e) => {
+          const index = parseInt(e.target.dataset.index);
+          if (e.target.value.trim() !== items[index]) {
+            updateFood(index, e.target.value);
+          }
+        });
+      });
+
+      foodList.querySelectorAll('.btn-edit').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const index = parseInt(e.target.dataset.index);
+          const input = foodList.querySelector(`.food-name[data-index="${index}"]`);
+          input.focus();
+          input.select();
+        });
+      });
+
+      foodList.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const index = parseInt(e.target.dataset.index);
+          deleteFood(index);
+        });
+      });
+    }
+
+    // ===================== Background Hearts =====================
+    function createBgHearts() {
+      const container = document.getElementById('bgHearts');
+      const heartEmojis = ['💕', '💖', '💗', '💝', '💘', '✨', '🌸', '🎀'];
+
+      for (let i = 0; i < 15; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'bg-heart';
+        heart.textContent = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+        heart.style.left = Math.random() * 100 + '%';
+        heart.style.animationDelay = Math.random() * 12 + 's';
+        heart.style.animationDuration = (10 + Math.random() * 8) + 's';
+        heart.style.fontSize = (14 + Math.random() * 18) + 'px';
+        container.appendChild(heart);
+      }
+    }
+
+    // ===================== Event Listeners =====================
+    spinBtn.addEventListener('click', () => spin(false));
+    respinBtn.addEventListener('click', handleRespin);
+    manageBtn.addEventListener('click', openModal);
+    closeModal.addEventListener('click', closeModalFn);
+    modalOverlay.addEventListener('click', closeModalFn);
+    addFoodBtn.addEventListener('click', addFood);
+    restoreBtn.addEventListener('click', restoreDefaults);
+
+    newFoodInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') addFood();
+    });
+
+    // Close modal on escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && manageModal.classList.contains('open')) {
+        closeModalFn();
+      }
+    });
+
+    // ===================== Init =====================
+    loadItems();
+    createBgHearts();
+    drawWheel(currentRotation);
+  </script>
+</body>
+</html>
