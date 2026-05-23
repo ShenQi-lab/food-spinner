@@ -1,12 +1,18 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>今天吃什么呀？</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700&display=swap"
+    rel="stylesheet">
+  <link rel="icon" type="image/png" href="./icon-512.png">
+  <link rel="apple-touch-icon" href="./icon-512.png">
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#ff8fab">
   <style>
     :root {
       --bg-start: #fff5f7;
@@ -34,7 +40,8 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    html, body {
+    html,
+    body {
       height: 100%;
       overflow-x: hidden;
     }
@@ -64,10 +71,23 @@
     }
 
     @keyframes floatHeart {
-      0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-      10% { opacity: 0.6; }
-      90% { opacity: 0.4; }
-      100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+      0% {
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 0;
+      }
+
+      10% {
+        opacity: 0.6;
+      }
+
+      90% {
+        opacity: 0.4;
+      }
+
+      100% {
+        transform: translateY(-10vh) rotate(360deg);
+        opacity: 0;
+      }
     }
 
     .bg-blob {
@@ -107,8 +127,13 @@
     }
 
     @keyframes blobMove {
-      0% { transform: translate(0, 0) scale(1); }
-      100% { transform: translate(30px, -30px) scale(1.1); }
+      0% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      100% {
+        transform: translate(30px, -30px) scale(1.1);
+      }
     }
 
     /* App Layout */
@@ -167,7 +192,7 @@
       box-shadow:
         0 8px 32px var(--shadow),
         0 2px 8px var(--shadow-strong),
-        inset 0 2px 4px rgba(255,255,255,0.5);
+        inset 0 2px 4px rgba(255, 255, 255, 0.5);
     }
 
     .wheel-pointer {
@@ -181,8 +206,15 @@
     }
 
     @keyframes pointerBounce {
-      0%, 100% { transform: translateX(-50%) translateY(0); }
-      50% { transform: translateX(-50%) translateY(-4px); }
+
+      0%,
+      100% {
+        transform: translateX(-50%) translateY(0);
+      }
+
+      50% {
+        transform: translateX(-50%) translateY(-4px);
+      }
     }
 
     .wheel-center {
@@ -214,7 +246,7 @@
       padding: 24px 28px;
       text-align: center;
       box-shadow: 0 8px 32px var(--shadow);
-      border: 1px solid rgba(255,255,255,0.6);
+      border: 1px solid rgba(255, 255, 255, 0.6);
       margin-bottom: 20px;
       min-height: 120px;
       display: flex;
@@ -366,8 +398,8 @@
       padding: 24px 20px 32px;
       transform: translateY(100%);
       transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-      box-shadow: 0 -8px 32px rgba(0,0,0,0.1);
-      border-top: 1px solid rgba(255,255,255,0.6);
+      box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.1);
+      border-top: 1px solid rgba(255, 255, 255, 0.6);
     }
 
     .modal.open .modal-content {
@@ -378,11 +410,13 @@
       .modal {
         align-items: center;
       }
+
       .modal-content {
         border-radius: 28px;
         max-height: 80vh;
         transform: translateY(30px) scale(0.95);
       }
+
       .modal.open .modal-content {
         transform: translateY(0) scale(1);
       }
@@ -406,7 +440,7 @@
       height: 36px;
       border-radius: 50%;
       border: none;
-      background: rgba(255,255,255,0.6);
+      background: rgba(255, 255, 255, 0.6);
       color: var(--text-light);
       font-size: 1.5rem;
       cursor: pointer;
@@ -438,7 +472,7 @@
       border-radius: 16px;
       font-size: 1rem;
       font-family: 'Noto Sans SC', sans-serif;
-      background: rgba(255,255,255,0.8);
+      background: rgba(255, 255, 255, 0.8);
       color: var(--text);
       outline: none;
       transition: all 0.2s;
@@ -480,9 +514,19 @@
     }
 
     @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-6px); }
-      75% { transform: translateX(6px); }
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      25% {
+        transform: translateX(-6px);
+      }
+
+      75% {
+        transform: translateX(6px);
+      }
     }
 
     /* Food List */
@@ -499,6 +543,7 @@
     .food-list::-webkit-scrollbar {
       width: 4px;
     }
+
     .food-list::-webkit-scrollbar-thumb {
       background: var(--primary-light);
       border-radius: 4px;
@@ -509,14 +554,14 @@
       align-items: center;
       gap: 10px;
       padding: 12px 14px;
-      background: rgba(255,255,255,0.7);
+      background: rgba(255, 255, 255, 0.7);
       border-radius: 16px;
-      border: 1px solid rgba(255,255,255,0.5);
+      border: 1px solid rgba(255, 255, 255, 0.5);
       transition: all 0.2s;
     }
 
     .food-item:hover {
-      background: rgba(255,255,255,0.9);
+      background: rgba(255, 255, 255, 0.9);
       transform: translateX(4px);
     }
 
@@ -535,7 +580,7 @@
     }
 
     .food-item .food-name:focus {
-      background: rgba(255,255,255,0.9);
+      background: rgba(255, 255, 255, 0.9);
       box-shadow: 0 0 0 2px var(--primary-light);
     }
 
@@ -561,6 +606,7 @@
       background: var(--accent-light);
       color: #c99000;
     }
+
     .btn-edit:hover {
       background: var(--accent);
       color: #fff;
@@ -570,6 +616,7 @@
       background: #ffe8ec;
       color: var(--danger);
     }
+
     .btn-delete:hover {
       background: var(--danger);
       color: #fff;
@@ -582,7 +629,7 @@
 
     .btn-restore {
       width: 100%;
-      background: rgba(255,255,255,0.6);
+      background: rgba(255, 255, 255, 0.6);
       color: var(--text-light);
       padding: 14px;
       border-radius: 16px;
@@ -591,7 +638,7 @@
     }
 
     .btn-restore:hover {
-      background: rgba(255,255,255,0.9);
+      background: rgba(255, 255, 255, 0.9);
       color: var(--primary);
       border-style: solid;
     }
@@ -606,20 +653,47 @@
 
     /* Animations */
     @keyframes fadeInDown {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     @keyframes bounceIn {
-      0% { opacity: 0; transform: scale(0.3); }
-      50% { transform: scale(1.05); }
-      70% { transform: scale(0.95); }
-      100% { opacity: 1; transform: scale(1); }
+      0% {
+        opacity: 0;
+        transform: scale(0.3);
+      }
+
+      50% {
+        transform: scale(1.05);
+      }
+
+      70% {
+        transform: scale(0.95);
+      }
+
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
     }
 
     /* Spinning state */
@@ -628,8 +702,13 @@
     }
 
     @keyframes wheelPulse {
-      from { transform: scale(1); }
-      to { transform: scale(1.01); }
+      from {
+        transform: scale(1);
+      }
+
+      to {
+        transform: scale(1.01);
+      }
     }
 
     /* Respin limit message */
@@ -645,6 +724,7 @@
     }
   </style>
 </head>
+
 <body>
   <!-- Background Effects -->
   <div class="bg-hearts" id="bgHearts"></div>
@@ -664,7 +744,8 @@
           <canvas id="wheelCanvas"></canvas>
           <div class="wheel-pointer">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="#ff6b8a">
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+              <path
+                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
             </svg>
           </div>
           <div class="wheel-center">
@@ -1223,4 +1304,5 @@
     drawWheel(currentRotation);
   </script>
 </body>
+
 </html>
