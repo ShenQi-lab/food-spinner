@@ -538,7 +538,9 @@
       margin-bottom: 20px;
       max-height: 40vh;
       overflow-y: auto;
+      overflow-x: hidden;
       padding-right: 4px;
+      width: 100%;
     }
 
     .food-list::-webkit-scrollbar {
@@ -559,8 +561,8 @@
       border-radius: 16px;
       border: 1px solid rgba(255, 255, 255, 0.5);
       transition: all 0.2s;
-      min-width: 0;
-      overflow: hidden;
+      width: 100%;
+      flex-shrink: 0;
     }
 
     .food-item:hover {
@@ -581,9 +583,6 @@
       border-radius: 8px;
       transition: all 0.2s;
       min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
     }
 
     .food-item .food-name:focus {
