@@ -730,6 +730,25 @@
       animation: fadeInUp 0.4s ease-out;
     }
   </style>
+  <script>
+    // 强制更新 Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').then(function (reg) {
+        if (reg.waiting) {
+          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+        }
+        reg.addEventListener('updatefound', function () {
+          var newWorker = reg.installing;
+          newWorker.addEventListener('statechange', function () {
+            if (newWorker.state === 'activated') {
+              window.location.reload();
+            }
+          });
+        });
+      });
+    }
+  </script>
+
 </head>
 
 <body>

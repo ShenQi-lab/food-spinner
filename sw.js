@@ -1,4 +1,6 @@
-const CACHE_NAME = 'food-spinner-v1.0.2';
+// 版本更新时自动清除所有旧缓存
+var CACHE_VERSION = 'food-spinner-v1.0.3';
+const CACHE_NAME = CACHE_VERSION;
 const urlsToCache = [
     './',
     './index.html',
