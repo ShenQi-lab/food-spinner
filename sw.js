@@ -1,4 +1,4 @@
-const CACHE_NAME = 'food-spinner-v1.0.1';
+const CACHE_NAME = 'food-spinner-v1.0.2';
 const urlsToCache = [
     './',
     './index.html',
@@ -18,10 +18,32 @@ self.addEventListener('install', (event) => {
 self.addEventListener('fetch', (event) => {
     event.respondWith(
         caches.match(event.request).then((response) => {
-            return response || fetch(event.request);
+            if (response) {
+                return response;
+            }
+            return fetch(event.request).then((fetchResponse) => {
+                if (fetchResponse && fetchResponse.status === 200) {
+                    const responseClone = fetchResponse.clone();
+                    caches.open(CACHE_NAME).then((cache) => {
+                        cache.put(event.request, responseClone);
+                    });
+                }
+                return fetchResponse;
+            }).catch(() => {
+                return new Response('离线模式，请连接网络后刷新', {
+                    headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+                });
+            });
+        }).catch(() => {
+            return fetch(event.request).catch(() => {
+                return new Response('离线模式，请连接网络后刷新', {
+                    headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+                });
+            });
         })
     );
 });
+
 
 self.addEventListener('activate', (event) => {
     event.waitUntil(
