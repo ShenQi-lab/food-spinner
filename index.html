@@ -731,20 +731,33 @@
     }
   </style>
   <script>
-    // 强制更新 Service Worker
+    // Service Worker 注册与更新
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./sw.js').then(function (reg) {
+        // 有新版本等待时，立即激活
         if (reg.waiting) {
           reg.waiting.postMessage({ type: 'SKIP_WAITING' });
         }
+        // 发现更新
         reg.addEventListener('updatefound', function () {
           var newWorker = reg.installing;
           newWorker.addEventListener('statechange', function () {
-            if (newWorker.state === 'activated') {
-              window.location.reload();
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              // 有新版本，提示刷新
+              if (confirm('发现新版本，是否立即更新？')) {
+                newWorker.postMessage({ type: 'SKIP_WAITING' });
+                window.location.reload();
+              }
             }
           });
         });
+      }).catch(function (err) {
+        console.log('SW注册失败:', err);
+      });
+
+      // 监听控制器变化（新版本激活后刷新）
+      navigator.serviceWorker.addEventListener('controllerchange', function () {
+        window.location.reload();
       });
     }
   </script>
